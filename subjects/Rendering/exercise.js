@@ -30,10 +30,10 @@ const DATA = {
 
 let mexican = DATA.items
   .sort(sortBy('name'))
-  .filter((n) => {
-    return n.type === 'mexican'
-  }).map((n) => {
-    return <li>{n.name}</li>
+  .filter((item) => {
+    return item.type === 'mexican'
+  }).map((item) => {
+    return <li>{item.name}</li>
   })
 
 function Menu() {

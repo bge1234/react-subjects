@@ -35,17 +35,32 @@ styles.panel = {
 }
 
 const Tabs = React.createClass({
+  getInitialState() {
+    return {
+      activeTabIndex: 0
+    }
+  },
+  handleTabClick(index) {
+    this.setState({
+      activeTabIndex: index
+    })
+  },
   render() {
     return (
       <div className="Tabs">
-        <div className="Tab" style={styles.activeTab}>
-          Active
-        </div>
-        <div className="Tab" style={styles.tab}>
-          Inactive
-        </div>
+        {this.props.data.map((country, index) => {
+          const isActive = this.state.activeTabIndex === index
+          return (
+            <div
+              key={index}
+              className="Tab"
+              onClick={() => this.handleTabClick(index)}
+              style={isActive ? styles.activeTab : styles.tab}>
+              {country.name}
+            </div>
+        )})}
         <div className="TabPanel" style={styles.panel}>
-          Panel
+          {this.props.data[this.state.activeTabIndex].description}
         </div>
       </div>
     )
