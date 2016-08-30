@@ -28,10 +28,21 @@ const DATA = {
   ]
 }
 
+let mexican = DATA.items
+  .sort(sortBy('name'))
+  .filter((n) => {
+    return n.type === 'mexican'
+  }).map((n) => {
+    return <li>{n.name}</li>
+  })
+
 function Menu() {
   return (
     <div>
-      Open the console, you have failing tests.
+      <h1>{DATA.title}</h1>
+      <ul>
+        {mexican}
+      </ul>
     </div>
   )
 }
