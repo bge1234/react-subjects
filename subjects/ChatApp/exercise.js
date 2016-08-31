@@ -14,81 +14,113 @@
 //   sender and/or content
 ////////////////////////////////////////////////////////////////////////////////
 import React from 'react'
-import { render } from 'react-dom'
+import { render, findDOMNode } from 'react-dom'
 import { login, sendMessage, subscribeToMessages } from './utils/ChatUtils'
 import './styles'
 
-/*
-Here's how to use the ChatUtils:
+function groupMessages(messages) {
+  const groupedMessages = []
+  let previousUID = null
+  messages.forEach((message) => {
+    if (message.uid === previousUID) {
+      const prevUser = groupedMessages[groupedMessages.length - 1]
+      prevUser.push(message)
+    } else {
+      previousUID = message.uid
+      groupedMessages.push([ message ])
+    }
+  })
+  return groupedMessages
+}
 
-login((error, auth) => {
-  // hopefully the error is `null` and you have a auth.github object
+const PinToBottom = React.createClass({
+  componentWillUpdate() {
+    const { scrollTop, scrollHeight, clientHeight } = findDOMNode(this)
+    const distanceToBottom = scrollHeight - (scrollTop + clientHeight)
+    this.autoScroll = distanceToBottom < 10
+  },
+
+  componentDidUpdate() {
+    const node = findDOMNode(this)
+    if (this.autoScroll)
+      node.scrollTop = node.scrollHeight
+  },
+
+  render() {
+    return this.props.children
+  }
 })
-
-sendMessage(
-  auth.uid,                       // the auth.uid string
-  auth.github.username,           // the username
-  auth.github.profileImageURL,    // the user's profile image
-  'hello, this is a message'      // the text of the message
-)
-
-const unsubscribe = subscribeToMessages(messages => {
-  // here are your messages as an array, it will be called
-  // every time the messages change
-})
-
-unsubscribe() // stop listening for new messages
-
-The world is your oyster!
-*/
 
 const Chat = React.createClass({
+  getInitialState() {
+    return {
+      auth: null,
+      messages: [],
+      currentMessage: ''
+    }
+  },
+
+  componentDidMount() {
+    login((err, auth) => {
+      if (auth) {
+        this.setState({ auth: auth })
+        subscribeToMessages((messages) => {
+          this.setState({ messages: messages })
+        })
+      }
+    })
+  },
+
+  handleMessageEntry(event) {
+    this.setState({currentMessage: event.target.value})
+  },
+
+  handleSendMessage(event) {
+    event.preventDefault()
+    sendMessage(this.state.auth.uid, this.state.auth.github.username, this.state.auth.github.profileImageURL, this.state.currentMessage)
+    this.refs.message.value = ''
+    this.autoScroll = true
+  },
+
   render() {
+    const { messages } = this.state
+
     return (
       <div className="chat">
         <header className="chat-header">
           <h1 className="chat-title">HipReact</h1>
-          <p className="chat-message-count"># messages: 3</p>
+          <p className="chat-message-count"># messages: {messages.length}</p>
         </header>
-        <div className="messages">
-          <ol className="message-groups">
-            <li className="message-group">
-              <div className="message-group-avatar">
-                <img src="https://avatars1.githubusercontent.com/u/92839"/>
-              </div>
-              <ol className="messages">
-                <li className="message">So, check it out:</li>
-                <li className="message">QA Engineer walks into a bar.</li>
-                <li className="message">Orders a beer.</li>
-                <li className="message">Orders 0 beers.</li>
-                <li className="message">Orders 999999999 beers.</li>
-                <li className="message">Orders a lizard.</li>
-                <li className="message">Orders -1 beers.</li>
-                <li className="message">Orders a sfdeljknesv.</li>
-              </ol>
-            </li>
-            <li className="message-group">
-              <div className="message-group-avatar">
-                <img src="https://avatars2.githubusercontent.com/u/100200"/>
-              </div>
-              <ol className="messages">
-                <li className="message">Haha</li>
-                <li className="message">Stop stealing other people's jokes :P</li>
-              </ol>
-            </li>
-            <li className="message-group">
-              <div className="message-group-avatar">
-                <img src="https://avatars1.githubusercontent.com/u/92839"/>
-              </div>
-              <ol className="messages">
-                <li className="message">:'(</li>
-              </ol>
-            </li>
-          </ol>
-        </div>
-        <form className="new-message-form">
+        <PinToBottom>
+          <div className="messages">
+            <ol className="message-groups">
+              {groupMessages(messages).map((group) => (
+                <li className="message-group">
+                  <div className="message-group-avatar">
+                    <img src={group[0].avatarURL}/>
+                  </div>
+                  <ol className="messages">
+                    {group.map((message) => (
+                      <li className="message">{message.text}</li>
+                    ))}
+                  </ol>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </PinToBottom>
+        <form
+          className="new-message-form"
+          onSubmit={this.handleSendMessage}
+        >
           <div className="new-message">
-            <input ref="message" type="text" placeholder="say something..."/>
+          <input
+            ref="message"
+            type="text"
+            placeholder="say something..."
+            onChange={this.handleMessageEntry}
+            defaultValue={this.state.currentMessage}
+        />
           </div>
         </form>
       </div>
