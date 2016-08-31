@@ -10,7 +10,7 @@
 //
 // Got extra time?
 //
-// - If there are more than two characters in the "state" field, let the user
+// - If there are more than two characters in the "state" field, let the userh
 //   know they should use the two-character abbreviation
 // - If the user types something into shipping, then checks the checkbox, then
 //   unchecks the checkbox, ensure the field has the information from
@@ -93,6 +93,7 @@ const CheckoutForm = React.createClass({
                 value={this.state.sameAsBilling ? this.state.billingName : this.state.shippingName}
                 type="text"
                 onChange={this.handleShippingNameChange}
+                disabled={this.state.sameAsBilling}
               /></label>
             </p>
             <p>
@@ -101,6 +102,7 @@ const CheckoutForm = React.createClass({
                 type="text"
                 size="2"
                 onChange={this.handleShippingStateChange}
+                disabled={this.state.sameAsBilling}
               /></label>
             </p>
           </fieldset>

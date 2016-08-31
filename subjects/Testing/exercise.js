@@ -45,24 +45,38 @@ describe('when <Tabs> is rendered', () => {
     expect(tabs[0].innerText).toEqual(FixtureData[0].label, 'USA tab was not rendered')
   })
 
-  it('renders the Brazil tab')
+  it('renders the Brazil tab', () => {
+    expect(tabs[1].innerText).toEqual(FixtureData[1].label, 'Brazil tab was not rendered')
+  })
 
-  it('renders the Russia tab')
+  it('renders the Russia tab', () => {
+    expect(tabs[2].innerText).toEqual(FixtureData[2].label, 'Brazil tab was not rendered')
+  })
 
   // you may want to use the `borderFixture` variable
-  it('activates the first tab')
+  it('activates the first tab', () => {
+    expect(tabs[0].style.borderBottomColor).toEqual('rgb(0, 0, 0)', 'Ya\' done screwed up')
+  })
 
-  it('does not activate the second tab')
+  it('does not activate the second tab', () => {
+    expect(tabs[1].style.borderBottomColor).toNotEqual('rgb(0, 0, 0)', 'Ya\' done screwed up')
+  })
 
   describe('after clicking the second tab', () => {
     beforeEach(() => {
-      // TODO: simulate a click on the second tab
+      Simulate.click(tabs[1])
     })
 
-    it('activates the second tab')
+    it('activates the second tab', () => {
+      expect(tabs[1].style.borderBottomColor).toEqual('rgb(0, 0, 0)', 'Ya\' done screwed up')
+    })
 
-    it('deactivates the first tab')
+    it('deactivates the first tab', () => {
+      expect(tabs[0].style.borderBottomColor).toNotEqual('rgb(0, 0, 0)', 'Ya\' done screwed up')
+    })
 
-    it('puts the correct content in the panel')
+    it('puts the correct content in the panel', () => {
+      expect(panel.innerText).toEqual(FixtureData[1].content, 'Correct content was not rendered')
+    })
   })
 })
